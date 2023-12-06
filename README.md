@@ -1,2 +1,3 @@
 # lox
-Bob Nystrom's Crafting Interpreters
+
+Bob Nystrom's [Crafting Interpreters](https://craftinginterpreters.com)
