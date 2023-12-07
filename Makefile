@@ -1,40 +1,22 @@
-JAVA_VERSION = 17
-JAVAC = javac
-JAVA = java
+# Makefile for building a single directory of Java source files. It requires
+# a DIR variable to be set.
 
-JAVA_COMPILE_OPTIONS = --enable-preview --release $(JAVA_VERSION)
-JAVA_OPTIONS = --enable-preview
+BUILD_DIR := build
+DIR := .
+PACKAGE := lox
 
-JAVA_MAIN_CLASS = com.craftinginterpreters.lox.Lox
-JAVA_SOURCES = $(wildcard src/main/java/**/**/**/*.java)
-JAVA_CLASSES = $(patsubst src/main/java/%.java, target/classes/%.class, $(JAVA_SOURCES))
+SOURCES := $(wildcard $(DIR)/com/craftinginterpreters/$(PACKAGE)/*.java)
+CLASSES := $(addprefix $(BUILD_DIR)/, $(SOURCES:.java=.class))
 
-# Compile the Java source files
-compile: $(JAVA_CLASSES)
-	$(info Java source files: $(JAVA_SOURCES))
-	$(info Java class files: $(JAVA_CLASSES))
+JAVA_OPTIONS := -Werror
 
-# Run the Java main class
-run: compile
-	$(JAVA) $(JAVA_OPTIONS) -cp target/classes $(JAVA_MAIN_CLASS)
+default: $(CLASSES)
+	@: # Don't show "Nothing to be done" output.
 
-# Clean the target directory
-clean:
-	rm -rf target
+# Compile a single .java file to .class.
+$(BUILD_DIR)/$(DIR)/%.class: $(DIR)/%.java
+	@ mkdir -p $(BUILD_DIR)/$(DIR)
+	@ javac -cp $(DIR) -d $(BUILD_DIR)/$(DIR) $(JAVA_OPTIONS) -implicit:none $<
+	@ printf "%8s %-60s %s\n" javac $< "$(JAVA_OPTIONS)"
 
-# Compile the Java source files
-target/classes/%.class: src/main/java/%.java
-	$(JAVAC) $(JAVA_COMPILE_OPTIONS) -d target/classes $<
-
-# Create the target directory
-target/classes:
-	mkdir -p target/classes
-
-# Make the target directory a dependency of the Java class files
-$(JAVA_CLASSES): target/classes
-compile: target/classes
-clean: target/classes
-run: target/classes
-default: target/classes
-
-default: run
+.PHONY: default
